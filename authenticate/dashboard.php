@@ -5,9 +5,7 @@ require 'db.php';
 $userType = $_SESSION['user_type'];
 $userStall = $_SESSION['stall_id'] ?? null;
 
-// Default counts for admin
 if ($userType === 'staff') {
-  // For staff, count products only for their stall
   $stmt = $pdo->prepare("SELECT COUNT(*) FROM products WHERE stall_id = ?");
   $stmt->execute([$userStall]);
   $productCount = $stmt->fetchColumn();
@@ -16,17 +14,15 @@ if ($userType === 'staff') {
   $stmt = $pdo->prepare("SELECT name FROM stalls WHERE id = ?");
   $stmt->execute([$userStall]);
   $stallName = $stmt->fetchColumn();
-
-  // Staff count is 1 for themselves, or count of staff in the same stall?
-  // Assuming we show only the logged in staff info:
+  
   $staffList = $pdo->prepare("SELECT * FROM staffs WHERE stall_id = ?");
   $staffList->execute([$userStall]);
 
-  // Fetch products for that stall
+  
   $productList = $pdo->prepare("SELECT * FROM products WHERE stall_id = ?");
   $productList->execute([$userStall]);
 } else {
-  // Admin - full data
+  
   $stallCount = $pdo->query("SELECT COUNT(*) FROM stalls")->fetchColumn();
   $staffCount = $pdo->query("SELECT COUNT(*) FROM staffs")->fetchColumn();
   $productCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
@@ -55,7 +51,7 @@ if ($userType === 'staff') {
       <span class="mr-4 text-gray-700">
         Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>
         (<?php echo htmlspecialchars($_SESSION['user_type']); ?>)
-        
+
       </span>
       <?php if ($_SESSION['user_type'] === 'staff'): ?>
         <span class="mr-4 text-gray-600">Stall: <?php echo htmlspecialchars($stallName); ?></span>
@@ -473,8 +469,6 @@ if ($userType === 'staff') {
       document.getElementById('editProductId').value = this.dataset.id;
       document.getElementById('editProductName').value = this.dataset.name;
       document.getElementById('editProductPrice').value = this.dataset.price;
-
-      // You can't prefill a file input for security reasons, so leave image alone
 
       document.getElementById('editProductModal').classList.remove('hidden');
     });

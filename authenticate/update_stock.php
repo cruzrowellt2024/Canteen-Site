@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once 'db.php'; // uses your $pdo connection
+require_once 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   echo json_encode(['success' => false, 'error' => 'Invalid request method']);
@@ -29,7 +29,7 @@ try {
   }
 
   $currentStock = (int)$product['stock'];
-  $newStock = max(0, $currentStock + $change); // clamp to zero
+  $newStock = max(0, $currentStock + $change);
 
   $update = $pdo->prepare("UPDATE products SET stock = :stock WHERE id = :id");
   $update->execute([
