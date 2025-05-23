@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 22, 2025 at 04:20 PM
+-- Generation Time: May 23, 2025 at 03:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -62,7 +62,7 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `image_url`, `price`, `stall_id`, `description`, `category`, `stock`) VALUES
-(16, 'Yak baby', 'uploads/682dbe66b32c8_S383b4b8479c54b54a8deb199d195e7d9U.jpg_720x720q80.jpg', 10.00, 4, '', 'Drinks', 1);
+(16, 'Yak Baby', 'uploads/68307079c725e_S383b4b8479c54b54a8deb199d195e7d9U.jpg_720x720q80.jpg', 10.00, 4, '', 'Snacks', 1);
 
 -- --------------------------------------------------------
 
