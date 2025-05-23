@@ -55,7 +55,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <ul class="flex items-center space-x-4">
         <h1 class="text-white text-xl font-bold mr-10">SwiftBites</h1>
         <li><a href="index.php" class="text-white text-l underline">Home</a></li>
-        <li><a href="#" class="text-white text-l underline">About</a></li>
+        <li><a href="about.php" class="text-white text-l underline">About</a></li>
       </ul>
       <nav class="flex items-center space-x-4">
         <form method="GET" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" class="ml-4 flex space-x-2 items-center">

@@ -68,6 +68,13 @@ CREATE TABLE `stalls` (
   `location` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE messages (
+  'id' INT AUTO_INCREMENT PRIMARY KEY,
+  'name' VARCHAR(100) NOT NULL,
+  'email' VARCHAR(150) NOT NULL,
+  'message' TEXT NOT NULL,
+  'submitted_at' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 ALTER TABLE `admins`
   ADD PRIMARY KEY (`id`),
@@ -83,7 +90,7 @@ ALTER TABLE `staffs`
 
 ALTER TABLE `stalls`
   ADD PRIMARY KEY (`id`);
-  
+
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`stall_id`) REFERENCES `stalls` (`id`) ON DELETE CASCADE;
 COMMIT;

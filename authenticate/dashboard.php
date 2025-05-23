@@ -14,18 +14,19 @@ if ($userType === 'staff') {
   $stmt = $pdo->prepare("SELECT name FROM stalls WHERE id = ?");
   $stmt->execute([$userStall]);
   $stallName = $stmt->fetchColumn();
-  
+
   $staffList = $pdo->prepare("SELECT * FROM staffs WHERE stall_id = ?");
   $staffList->execute([$userStall]);
 
-  
+
   $productList = $pdo->prepare("SELECT * FROM products WHERE stall_id = ?");
   $productList->execute([$userStall]);
 } else {
-  
+
   $stallCount = $pdo->query("SELECT COUNT(*) FROM stalls")->fetchColumn();
   $staffCount = $pdo->query("SELECT COUNT(*) FROM staffs")->fetchColumn();
   $productCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
+  $messageCount = $pdo->query("SELECT COUNT(*) FROM messages")->fetchColumn();
 
   $staffList = $pdo->query("SELECT * FROM staffs");
   $productList = $pdo->query("SELECT * FROM products");
@@ -248,22 +249,22 @@ if ($userType === 'staff') {
 <?php else: ?>
   <!-- Summary Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white p-6 rounded shadow">
+    <div onclick="scrollToSection('stallSection')" class="cursor-pointer bg-white p-6 rounded shadow hover:shadow-lg transition">
       <p class="text-gray-500 text-sm">Total Stalls</p>
       <h2 class="text-2xl font-bold text-indigo-600"><?php echo $stallCount; ?></h2>
     </div>
-    <div class="bg-white p-6 rounded shadow">
+    <div onclick="scrollToSection('staffSection')" class="cursor-pointer bg-white p-6 rounded shadow hover:shadow-lg transition">
       <p class="text-gray-500 text-sm">Total Staff</p>
       <h2 class="text-2xl font-bold text-indigo-600"><?php echo $staffCount; ?></h2>
     </div>
-    <div class="bg-white p-6 rounded shadow">
-      <p class="text-gray-500 text-sm">Total Products</p>
-      <h2 class="text-2xl font-bold text-indigo-600"><?php echo $productCount; ?></h2>
+    <div onclick="scrollToSection('messageSection')" class="cursor-pointer bg-white p-6 rounded shadow hover:shadow-lg transition">
+      <p class="text-gray-500 text-sm">Messages</p>
+      <h2 class="text-2xl font-bold text-indigo-600"><?php echo $messageCount; ?></h2>
     </div>
   </div>
 
   <!-- Manage Staff Panel -->
-  <section class="bg-white p-6 rounded shadow">
+  <section id="staffSection" class="bg-white p-6 rounded shadow">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Manage Staff</h2>
       <button id="openStaffModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Staff</button>
@@ -308,7 +309,7 @@ if ($userType === 'staff') {
 
 
   <!-- Manage Stalls Panel -->
-  <section class="bg-white p-6 rounded shadow">
+  <section id="stallSection" class="bg-white p-6 rounded shadow">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Manage Stalls</h2>
       <button id="openStallModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add Stall</button>
@@ -337,7 +338,54 @@ if ($userType === 'staff') {
       </table>
     </div>
   </section>
+
+  <section id="messageSection" class="bg-white p-6 rounded shadow">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-800">Messages</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600">
+          <tr>
+            <th class="p-3">Name</th>
+            <th class="p-3">Email</th>
+            <th class="p-3">Message</th>
+            <th class="p-3">Submitted At</th>
+            <th class="p-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          $messageList = $pdo->query("SELECT * FROM messages");
+          foreach ($messageList as $message):
+          ?>
+            <tr class="border-t">
+              <td class="p-3"><?php echo htmlspecialchars($message['name']); ?></td>
+              <td class="p-3"><?php echo htmlspecialchars($message['email']); ?></td>
+              <td class="p-3"><?php echo htmlspecialchars($message['message']); ?></td>
+              <td class="p-3"><?php echo htmlspecialchars($message['submitted_at']); ?></td>
+              <td class="p-3">
+                <button
+                  class="text-blue-600 hover:underline view-btn"
+                  data-message="<?php echo htmlspecialchars($message['message'], ENT_QUOTES); ?>">
+                  View
+                </button>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </section>
   </main>
+
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded shadow-lg max-w-lg w-full p-6 relative">
+      <button id="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">&times;</button>
+      <h3 class="text-xl font-semibold mb-4">Full Message</h3>
+      <p id="modalMessage" class="whitespace-pre-wrap"></p>
+    </div>
+  </div>
 
   <div id="editStaffModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
     <div class="bg-white rounded p-6 w-full max-w-md relative">
@@ -524,6 +572,38 @@ if ($userType === 'staff') {
         alert('Error updating category');
       });
   }
+</script>
+
+<script>
+  function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+  }
+</script>
+
+<script>
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const message = btn.getAttribute('data-message');
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('modal').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('modal').classList.add('hidden');
+  });
+
+  // Optional: close modal when clicking outside modal content
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('modal').classList.add('hidden');
+    }
+  });
 </script>
 
 </body>
