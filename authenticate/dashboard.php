@@ -55,6 +55,7 @@ if ($userType === 'staff') {
       <span class="mr-4 text-gray-700">
         Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>
         (<?php echo htmlspecialchars($_SESSION['user_type']); ?>)
+        
       </span>
       <?php if ($_SESSION['user_type'] === 'staff'): ?>
         <span class="mr-4 text-gray-600">Stall: <?php echo htmlspecialchars($stallName); ?></span>
@@ -86,7 +87,7 @@ if ($userType === 'staff') {
               <tr>
                 <th class="p-3">Product Name</th>
                 <th class="p-3">Category</th>
-                <th class="p-3">Price</th>"
+                <th class="p-3">Price</th>
                 <th class="p-3">Stock</th>
                 <th class="p-3">Actions</th>
               </tr>
@@ -122,14 +123,15 @@ if ($userType === 'staff') {
                       class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
                       onclick="updateStock(<?= $product['id']; ?>, 1)">+</button>
                   </td>
-                  
-              <td class="p-3 space-x-2">
-                <a href="#"
-                  class="text-blue-600 hover:underline editBtn"
-                  data-id="<?= $staff['id']; ?>"
-                  data-username="<?= htmlspecialchars($staff['username']); ?>"
-                  data-stall-id="<?= $staff['stall_id']; ?>"> Edit </a>
-                <a href="delete_product.php?id=<?php echo $product['id']; ?>" class="text-red-600 hover:underline">Delete</a>
+
+                  <td class="p-3 space-x-2">
+                    <a href="#"
+                      class="text-blue-600 hover:underline editProductBtn"
+                      data-id="<?= $product['id']; ?>"
+                      data-name="<?= htmlspecialchars($product['name']); ?>"
+                      data-price="<?= $product['price']; ?>"
+                      data-image="<?= $product['image_url']; ?>"> Edit </a>
+                    <a href="delete_product.php?id=<?php echo $product['id']; ?>" class="text-red-600 hover:underline">Delete</a>
 
                 </tr>
               <?php endforeach; ?>
@@ -166,7 +168,6 @@ if ($userType === 'staff') {
       <button type="button" id="closeProductModal" class="absolute top-4 right-5 text-gray-600 hover:text-gray-900 font-bold text-2xl">×</button>
       <h2 class="text-xl font-bold mb-4">Add Product</h2>
 
-      <!-- Add enctype for file uploads -->
       <form id="productForm" method="POST" action="add_product.php" enctype="multipart/form-data">
         <input
           type="text"
@@ -197,7 +198,6 @@ if ($userType === 'staff') {
           class="w-full border px-3 py-2 rounded mb-4"
           required />
 
-        <!-- New image upload input -->
         <input
           type="file"
           name="image"
@@ -212,6 +212,42 @@ if ($userType === 'staff') {
     </div>
   </div>
 
+  <div id="editProductModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded p-6 w-full max-w-md relative">
+      <button type="button" id="closeEditProductModal" class="absolute top-4 right-5 text-gray-600 hover:text-gray-900 font-bold text-2xl">×</button>
+      <h2 class="text-xl font-bold mb-4">Edit Product</h2>
+      <form method="POST" action="edit_product.php" enctype="multipart/form-data">
+        <input type="hidden" name="id" id="editProductId">
+        <img src="../<?= $product['image_url']; ?>" alt="Current image" class="w-full h-40 object-cover mb-2" id="editProductPreview">
+
+        <input
+          type="text"
+          name="name"
+          id="editProductName"
+          placeholder="Product Name"
+          class="w-full border px-3 py-2 rounded mb-4"
+          required />
+
+        <input
+          type="number"
+          name="price"
+          id="editProductPrice"
+          placeholder="Price"
+          class="w-full border px-3 py-2 rounded mb-4"
+          required />
+
+        <input
+          type="file"
+          name="image"
+          id="editProductImage"
+          accept="image/*"
+          class="w-full border px-3 py-2 rounded mb-4"
+          required />
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Changes</button>
+      </form>
+    </div>
+  </div>
 
 <?php else: ?>
   <!-- Summary Cards -->
@@ -415,7 +451,6 @@ if ($userType === 'staff') {
 </script>
 
 <script>
-  // Open modal and fill fields
   document.querySelectorAll('.editBtn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.getElementById('editStaffId').value = this.dataset.id;
@@ -425,11 +460,31 @@ if ($userType === 'staff') {
     });
   });
 
-  // Close modal
   document.getElementById('closeEditStaffModal').addEventListener('click', function() {
     document.getElementById('editStaffModal').classList.add('hidden');
   });
 </script>
+
+<script>
+  document.querySelectorAll('.editProductBtn').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      document.getElementById('editProductId').value = this.dataset.id;
+      document.getElementById('editProductName').value = this.dataset.name;
+      document.getElementById('editProductPrice').value = this.dataset.price;
+
+      // You can't prefill a file input for security reasons, so leave image alone
+
+      document.getElementById('editProductModal').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('closeEditProductModal').addEventListener('click', function() {
+    document.getElementById('editProductModal').classList.add('hidden');
+  });
+</script>
+
 
 <script>
   function updateStock(productId, change) {
